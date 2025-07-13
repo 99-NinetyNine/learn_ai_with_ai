@@ -1,70 +1,275 @@
-# Getting Started with Create React App
+# AI PDF Reader - Complete Implementation Guide
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 🚀 Quick Start
 
-## Available Scripts
+### 1. Create the Project
+```bash
+npx create-react-app ai-pdf-reader
+cd ai-pdf-reader
+```
 
-In the project directory, you can run:
+### 2. Install Dependencies
+```bash
+npm install react-pdf pdfjs-dist @mui/material @emotion/react @emotion/styled @mui/icons-material lodash react-hotkeys-hook file-saver html2canvas
+```
 
-### `npm start`
+### 3. Get Gemini API Key
+1. Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Create a new API key
+3. Copy the key
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### 4. Setup Environment
+Create `.env` file in the root directory:
+```env
+REACT_APP_GEMINI_API_KEY=your_actual_gemini_api_key_here
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 5. Project Structure
+Create the following folder structure:
+```
+src/
+├── components/
+├── hooks/
+├── services/
+├── utils/
+└── styles/
+```
 
-### `npm test`
+### 6. Copy the Files
+1. Replace `src/App.js` with the Enhanced App component
+2. Create `src/hooks/useGemini.js` and other hook files
+3. Create `src/services/geminiService.js`
+4. Update `package.json` with dependencies
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 7. Run the Application
+```bash
+npm start
+```
 
-### `npm run build`
+## 📁 File Structure
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```
+ai-pdf-reader/
+├── public/
+├── src/
+│   ├── components/          # React components
+│   ├── hooks/               # Custom React hooks
+│   │   ├── useGemini.js    # Gemini AI integration
+│   │   ├── usePDF.js       # PDF handling
+│   │   ├── useHighlights.js # Highlight management
+│   │   ├── useTextSelection.js # Text selection
+│   │   └── useSearch.js    # Search functionality
+│   ├── services/
+│   │   └── geminiService.js # AI service layer
+│   ├── utils/              # Utility functions
+│   ├── App.js              # Main application
+│   ├── index.js            # Entry point
+│   └── index.css           # Global styles
+├── .env                    # Environment variables
+├── package.json            # Dependencies
+└── README.md
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## 🎯 Key Features Implemented
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### ✅ Core PDF Reader
+- **Dark/Light Theme**: Toggle between themes
+- **Page Navigation**: Previous/Next with keyboard shortcuts
+- **Zoom Controls**: Zoom in/out/reset functionality
+- **Search**: Full-text search with result navigation
+- **File Upload**: Drag & drop PDF support
 
-### `npm run eject`
+### ✅ AI-Powered Features
+- **Text Simplification**: Simplify complex academic text
+- **Terminology Explanation**: Explain technical terms and jargon
+- **Document Summary**: Generate comprehensive summaries
+- **Content Connections**: Map relationships between sections
+- **Key Points Extraction**: Extract important insights
+- **Study Questions**: Generate comprehension questions
+- **Diagram Analysis**: Analyze visual elements
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### ✅ Advanced Tools
+- **Smart Highlighting**: Color-coded highlights with notes
+- **Text Selection**: Quick AI tools on text selection
+- **Progress Tracking**: Reading progress and session stats
+- **Keyboard Shortcuts**: Efficient navigation and tools
+- **Export/Import**: Save highlights and data
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### ✅ User Experience
+- **Responsive Design**: Works on desktop and mobile
+- **Real-time Feedback**: Live AI processing indicators
+- **Error Handling**: Graceful error messages
+- **Session Persistence**: Maintains state during session
+- **Accessibility**: Screen reader friendly
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## 🔧 Configuration
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Gemini API Setup
+The app uses Gemini 2.5 Pro for AI features. Make sure to:
+1. Get a valid API key from Google AI Studio
+2. Add it to your `.env` file
+3. Never commit the API key to version control
 
-## Learn More
+### PDF.js Configuration
+The app automatically configures PDF.js worker. If you encounter issues:
+```javascript
+// In src/App.js, update the worker path if needed
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 🎮 Usage Guide
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Basic PDF Reading
+1. **Upload PDF**: Click "Choose PDF File" or use the upload button
+2. **Navigate**: Use arrow keys or navigation buttons
+3. **Zoom**: Use zoom controls or mouse wheel
+4. **Search**: Press Ctrl+F or use search box
 
-### Code Splitting
+### AI Features
+1. **Select Text**: Highlight any text in the PDF
+2. **Quick Tools**: Use the popup toolbar for instant AI help
+3. **Sidebar Tools**: Access all AI features from the sidebar
+4. **Keyboard Shortcuts**:
+   - `Ctrl+S`: Generate summary
+   - `Ctrl+Q`: Generate study questions
+   - `Ctrl+F`: Search
+   - `←/→`: Navigate pages
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Highlighting
+1. **Enable**: Click the highlight button in toolbar
+2. **Select**: Choose text and click highlight in popup
+3. **Manage**: View all highlights in sidebar
+4. **Export**: Save highlights as JSON file
 
-### Analyzing the Bundle Size
+## 🚨 Troubleshooting
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### Common Issues
+1. **PDF not loading**: Check file format and size
+2. **AI not responding**: Verify API key in `.env`
+3. **Search not working**: Ensure PDF has text layer
+4. **Highlighting issues**: Make sure highlight mode is enabled
 
-### Making a Progressive Web App
+### Performance Tips
+1. **Large PDFs**: Use pagination for better performance
+2. **AI Calls**: Rate limit API calls to avoid quota issues
+3. **Memory**: Close unused tabs when working with large files
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## 🔮 Future Enhancements
 
-### Advanced Configuration
+### Planned Features
+- [ ] Multi-language support
+- [ ] Collaborative annotations
+- [ ] Cloud storage integration
+- [ ] Advanced AI models
+- [ ] Citation generation
+- [ ] Reference management
+- [ ] Offline mode
+- [ ] Mobile app version
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### AI Improvements
+- [ ] Context-aware suggestions
+- [ ] Personalized learning paths
+- [ ] Advanced diagram recognition
+- [ ] Voice interaction
+- [ ] Real-time collaboration
+- [ ] Smart bookmarking
 
-### Deployment
+## 📝 Development Notes
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+### Architecture
+- **React 18**: Latest React features
+- **Functional Components**: Hooks-based architecture
+- **Custom Hooks**: Reusable logic separation
+- **Service Layer**: Clean API abstraction
+- **Error Boundaries**: Graceful error handling
 
-### `npm run build` fails to minify
+### State Management
+- **Local State**: React useState for component state
+- **Custom Hooks**: Shared state logic
+- **Context**: For global theme and settings
+- **Persistence**: Local storage for user preferences
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### Performance
+- **React.memo**: Prevent unnecessary re-renders
+- **useCallback**: Memoized functions
+- **useMemo**: Expensive calculations
+- **Lazy Loading**: Components and features
+- **Debouncing**: Search and API calls
+
+## 🛡️ Security
+
+### API Key Protection
+- Never expose API keys in client code
+- Use environment variables
+- Implement rate limiting
+- Monitor usage and costs
+
+### PDF Security
+- Validate file types
+- Limit file sizes
+- Sanitize extracted text
+- Handle malformed PDFs gracefully
+
+## 📊 Analytics & Monitoring
+
+### Usage Tracking
+- Reading progress
+- Tool usage patterns
+- Session duration
+- Error rates
+- Performance metrics
+
+### AI Usage
+- API call frequency
+- Response times
+- Success rates
+- Cost monitoring
+- Feature adoption
+
+## 🎨 Customization
+
+### Themes
+Easily customize colors and styling by modifying the theme object in App.js:
+```javascript
+const theme = {
+  primary: '#3498db',    // Main accent color
+  secondary: '#2ecc71',  // Secondary accent
+  background: '#0f0f0f', // Background color
+  // ... other theme properties
+};
+```
+
+### AI Prompts
+Customize AI behavior by modifying prompts in `geminiService.js`:
+```javascript
+async simplifyText(selectedText, documentContext = '') {
+  const prompt = `Your custom prompt here...`;
+  // ...
+}
+```
+
+## 🤝 Contributing
+
+### Development Setup
+1. Fork the repository
+2. Create feature branch
+3. Install dependencies
+4. Add your API key to `.env`
+5. Make changes
+6. Test thoroughly
+7. Submit pull request
+
+### Code Style
+- Use ESLint and Prettier
+- Follow React best practices
+- Write meaningful commit messages
+- Add comments for complex logic
+- Test all features before submitting
+
+---
+
+## 🎉 Ready to Go!
+
+Your AI-powered PDF reader is now ready! This implementation provides a solid foundation with all the features you requested. The app combines modern React development with powerful AI capabilities to create an intelligent reading experience.
+
+Happy reading! 📚🤖

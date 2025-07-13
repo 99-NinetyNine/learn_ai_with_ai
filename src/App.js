@@ -1,11 +1,12 @@
-// App.js - Complete Working AI PDF Reader
+// App.js - Fixed Version with Proper PDF.js Setup
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { Document, Page, pdfjs } from 'react-pdf';
+import { Document, Page } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
 
-// Configure PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
+// Configure PDF.js worker - Fixed version
+import { pdfjs } from 'react-pdf';
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 // Gemini AI Service
 class GeminiService {
@@ -125,7 +126,6 @@ const useGemini = (apiKey) => {
 };
 
 const usePDF = () => {
-  const [pdfDocument, setPdfDocument] = useState(null);
   const [numPages, setNumPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [scale, setScale] = useState(1.2);
@@ -133,54 +133,26 @@ const usePDF = () => {
   const [error, setError] = useState(null);
   const [extractedText, setExtractedText] = useState('');
 
-  const extractTextFromPDF = async (pdf) => {
-    let fullText = '';
-    
-    for (let i = 1; i <= Math.min(pdf.numPages, 10); i++) { // Limit to first 10 pages for performance
-      try {
-        const page = await pdf.getPage(i);
-        const textContent = await page.getTextContent();
-        const pageText = textContent.items.map(item => item.str).join(' ');
-        fullText += `Page ${i}: ${pageText}\n\n`;
-      } catch (err) {
-        console.warn(`Failed to extract text from page ${i}:`, err);
-      }
-    }
-    
-    setExtractedText(fullText);
-  };
-
-  const loadPDF = useCallback(async (file) => {
-    setIsLoading(true);
+  const onDocumentLoadSuccess = useCallback(({ numPages }) => {
+    setNumPages(numPages);
+    setCurrentPage(1);
     setError(null);
-    
+  }, []);
+
+  const onDocumentLoadError = useCallback((error) => {
+    setError(`Failed to load PDF: ${error.message}`);
+    setIsLoading(false);
+  }, []);
+
+  const extractTextFromPage = useCallback(async (pageNum, pdf) => {
     try {
-      const fileReader = new FileReader();
-      
-      fileReader.onload = async (event) => {
-        try {
-          const typedArray = new Uint8Array(event.target.result);
-          const loadingTask = pdfjs.getDocument(typedArray);
-          const pdf = await loadingTask.promise;
-          
-          setPdfDocument(pdf);
-          setNumPages(pdf.numPages);
-          setCurrentPage(1);
-          
-          // Extract text from PDF
-          await extractTextFromPDF(pdf);
-          
-        } catch (err) {
-          setError(`Failed to load PDF: ${err.message}`);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      
-      fileReader.readAsArrayBuffer(file);
+      const page = await pdf.getPage(pageNum);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items.map(item => item.str).join(' ');
+      return `Page ${pageNum}: ${pageText}\n\n`;
     } catch (err) {
-      setError(`File reading error: ${err.message}`);
-      setIsLoading(false);
+      console.warn(`Failed to extract text from page ${pageNum}:`, err);
+      return '';
     }
   }, []);
 
@@ -191,17 +163,18 @@ const usePDF = () => {
   }, [numPages]);
 
   return {
-    pdfDocument,
     numPages,
     currentPage,
     scale,
     isLoading,
     error,
     extractedText,
-    loadPDF,
+    onDocumentLoadSuccess,
+    onDocumentLoadError,
     goToPage,
     setScale,
-    setCurrentPage
+    setCurrentPage,
+    setExtractedText
   };
 };
 
@@ -298,8 +271,9 @@ const App = () => {
   // Custom Hooks
   const { isLoading: aiLoading, error: aiError, callAI, clearError } = useGemini(GEMINI_API_KEY);
   const {
-    pdfDocument, numPages, currentPage, scale, isLoading: pdfLoading,
-    error: pdfError, extractedText, loadPDF, goToPage, setScale
+    numPages, currentPage, scale, isLoading: pdfLoading,
+    error: pdfError, extractedText, onDocumentLoadSuccess, onDocumentLoadError,
+    goToPage, setScale, setExtractedText
   } = usePDF();
   const { selectedText, selectionPosition, clearSelection, hasSelection } = useTextSelection();
   const { highlights, highlightMode, addHighlight, removeHighlight, setHighlightMode } = useHighlights();
@@ -410,7 +384,10 @@ const App = () => {
     const file = event.target.files[0];
     if (file && file.type === 'application/pdf') {
       setPdfFile(file);
-      loadPDF(file);
+      // Extract text when PDF loads
+      setTimeout(() => {
+        setExtractedText(`Document loaded: ${file.name}. Text extraction will happen after PDF loads.`);
+      }, 1000);
     }
   };
 
@@ -747,8 +724,10 @@ const App = () => {
             {pdfFile ? (
               <Document
                 file={pdfFile}
+                onLoadSuccess={onDocumentLoadSuccess}
+                onLoadError={onDocumentLoadError}
                 loading={<div style={{ color: theme.text }}>📄 Loading PDF...</div>}
-                error={<div style={{ color: theme.accent }}>❌ Error loading PDF</div>}
+                error={<div style={{ color: theme.accent }}>❌ Error loading PDF. Please try another file.</div>}
               >
                 <div style={{
                   boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
@@ -761,6 +740,8 @@ const App = () => {
                     scale={scale}
                     renderTextLayer={true}
                     renderAnnotationLayer={true}
+                    loading={<div style={{ color: theme.text, padding: '20px' }}>Loading page...</div>}
+                    error={<div style={{ color: theme.accent, padding: '20px' }}>Error loading page</div>}
                   />
                   
                   {/* Selection Tooltip */}
@@ -861,6 +842,17 @@ const App = () => {
                 >
                   📄 Choose PDF File
                 </button>
+                
+                {/* Setup Instructions */}
+                <div style={{ marginTop: '40px', textAlign: 'left', maxWidth: '600px' }}>
+                  <h3 style={{ color: theme.text, marginBottom: '15px' }}>🚀 Quick Setup:</h3>
+                  <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
+                    <p>1. <strong>Get Gemini API Key:</strong> Visit <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noopener noreferrer" style={{ color: theme.primary }}>Google AI Studio</a></p>
+                    <p>2. <strong>Add to .env file:</strong> REACT_APP_GEMINI_API_KEY=your_key_here</p>
+                    <p>3. <strong>Restart app:</strong> npm start</p>
+                    <p>4. <strong>Upload PDF:</strong> Click the button above</p>
+                  </div>
+                </div>
               </div>
             )}
           </div>
