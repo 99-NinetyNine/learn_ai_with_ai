@@ -1,16 +1,23 @@
 {
   "name": "learn_ai_with_ai",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "AI-enhanced PDF reader with Gemini integration",
   "private": true,
   "dependencies": {
-    "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^13.5.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.14.19",
+    "@mui/material": "^5.14.20",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-pdf": "^7.5.1",
+    "pdfjs-dist": "^3.11.174",
     "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "lodash": "^4.17.21",
+    "react-hotkeys-hook": "^4.4.1",
+    "file-saver": "^2.0.5",
+    "html2canvas": "^1.4.1"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -35,5 +42,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.202",
+    "@types/file-saver": "^2.0.7"
   }
 }
